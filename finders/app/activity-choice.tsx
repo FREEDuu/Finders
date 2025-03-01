@@ -1,35 +1,65 @@
-import { StyleSheet, View, TouchableOpacity, Text, ImageBackground } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text, ImageBackground, Platform, ViewStyle, ImageStyle, StyleProp } from 'react-native';
 import { router } from 'expo-router';
-import * as DocumentPicker from 'expo-document-picker';
 import { COLORS, SHADOWS } from '@/constants/theme';
-import { useState } from 'react';
+
+const baseStyles = StyleSheet.create({
+  background: {
+    flex: 1,
+  } as ViewStyle,
+  backgroundImage: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  } as ImageStyle,
+});
+
+// Type for web-specific styles
+type WebViewStyle = ViewStyle & {
+  height?: string;
+  overflow?: 'hidden' | 'visible' | 'scroll' | 'auto';
+};
+
+type WebImageStyle = ImageStyle & {
+  position?: 'fixed' | 'absolute' | 'relative' | 'static';
+  objectFit?: 'cover' | 'contain' | 'fill' | 'none' | 'scale-down';
+};
+
+const webStyles = Platform.OS === 'web' ? StyleSheet.create({
+  container: {
+    height: '100vh',
+    overflow: 'hidden',
+  } as unknown as WebViewStyle,
+  backgroundImage: {
+    position: 'fixed',
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  } as unknown as WebImageStyle,
+}) : undefined;
 
 export default function ActivityChoiceScreen() {
-  const [selectedFile, setSelectedFile] = useState(null);
-
-  const handleUploadGPX = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: 'application/gpx+xml',
-      });
-
-      if (result.type === 'success') {
-        setSelectedFile(result);
-        router.push('/register-success');
-      }
-    } catch (err) {
-      console.error('Error picking document:', err);
-    }
+  const handleStartActivity = () => {
+    router.push('/upload-gpx');
   };
 
   const handleFollowActivity = () => {
-    router.push('/follow-success');
+    router.push('/enter-code');
   };
+
+  const backgroundStyle: StyleProp<ViewStyle> = Platform.OS === 'web' && webStyles 
+    ? StyleSheet.compose(baseStyles.background, webStyles.container as ViewStyle)
+    : baseStyles.background;
+
+  const imageStyle: StyleProp<ImageStyle> = Platform.OS === 'web' && webStyles
+    ? webStyles.backgroundImage as ImageStyle
+    : baseStyles.backgroundImage;
 
   return (
     <ImageBackground
       source={require('@/assets/images/trail-bg.jpg')}
-      style={styles.background}
+      style={backgroundStyle}
+      imageStyle={imageStyle}
+      resizeMode="cover"
     >
       <View style={styles.overlay}>
         <View style={styles.container}>
@@ -39,10 +69,10 @@ export default function ActivityChoiceScreen() {
           <View style={styles.buttonContainer}>
             <TouchableOpacity 
               style={[styles.button, styles.uploadButton]} 
-              onPress={handleUploadGPX}
+              onPress={handleStartActivity}
             >
-              <Text style={styles.buttonText}>Upload GPX File</Text>
-              <Text style={styles.buttonSubtext}>Share your adventure</Text>
+              <Text style={styles.buttonText}>Start Activity</Text>
+              <Text style={styles.buttonSubtext}>Begin your adventure</Text>
             </TouchableOpacity>
 
             <View style={styles.divider}>
@@ -66,9 +96,6 @@ export default function ActivityChoiceScreen() {
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-  },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -103,27 +130,26 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   button: {
-    height: 100,
+    width: '100%',
+    padding: 20,
     borderRadius: 15,
-    justifyContent: 'center',
     alignItems: 'center',
     ...SHADOWS.medium,
   },
   uploadButton: {
     backgroundColor: COLORS.primary,
-    marginBottom: 20,
   },
   followButton: {
     backgroundColor: COLORS.secondary,
   },
   buttonText: {
-    color: COLORS.text,
-    fontSize: 24,
-    fontWeight: '600',
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: 'bold',
     marginBottom: 5,
   },
   buttonSubtext: {
-    color: COLORS.textSecondary,
+    color: 'rgba(255,255,255,0.8)',
     fontSize: 14,
   },
   divider: {
@@ -134,11 +160,11 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: COLORS.border,
+    backgroundColor: 'rgba(255,255,255,0.3)',
   },
   dividerText: {
-    color: COLORS.textSecondary,
-    marginHorizontal: 10,
-    fontSize: 16,
+    color: 'rgba(255,255,255,0.6)',
+    paddingHorizontal: 10,
+    fontSize: 14,
   },
 });

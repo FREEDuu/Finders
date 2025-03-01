@@ -1,4 +1,5 @@
-import { StyleSheet, View, ImageBackground, ImageSourcePropType } from 'react-native';
+import { StyleSheet, View, ImageBackground, ImageSourcePropType, Platform } from 'react-native';
+import Layout from '@/constants/layout';
 import { COLORS } from '@/constants/theme';
 
 type ThemedBackgroundProps = {
@@ -21,7 +22,11 @@ export function ThemedBackground({
   }
 
   return (
-    <ImageBackground source={image} style={styles.container}>
+    <ImageBackground 
+      source={image} 
+      style={styles.container}
+      imageStyle={styles.backgroundImage}
+      resizeMode={Platform.OS === 'web' ? 'cover' : 'cover'}>
       <View style={[styles.overlay, { backgroundColor: `rgba(0,0,0,${overlayOpacity})` }]}>
         {children}
       </View>
@@ -32,6 +37,21 @@ export function ThemedBackground({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    minHeight: Platform.OS === 'web' ? '100vh' : '100%',
+  },
+  backgroundImage: Platform.OS === 'web' ? {
+    position: 'fixed',
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    zIndex: -1,
+  } : {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
   },
   overlay: {
     flex: 1,

@@ -1,12 +1,14 @@
 import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { useEffect, useState } from 'react';
-import MapView, { Marker } from 'react-native-maps';
+import WebMapView from '@/components/WebMapView';
 import * as Location from 'expo-location';
 import { COLORS, SHADOWS } from '@/constants/theme';
 
+type LocationType = Location.LocationObject | null;
+
 export default function FollowSuccessScreen() {
-  const [location, setLocation] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(null);
+  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -33,26 +35,12 @@ export default function FollowSuccessScreen() {
     <View style={styles.container}>
       <View style={styles.mapContainer}>
         {location && (
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: location.coords.latitude,
-              longitude: location.coords.longitude,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            }}
-            showsUserLocation={true}
-            showsMyLocationButton={true}
-          >
-            <Marker
-              coordinate={{
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
-              }}
-              title="You are here"
-              description="Your current location"
-            />
-          </MapView>
+          <WebMapView
+            latitude={location.coords.latitude}
+            longitude={location.coords.longitude}
+            height={Dimensions.get('window').height * 0.5}
+            width={Dimensions.get('window').width}
+          />
         )}
       </View>
 

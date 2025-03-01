@@ -40,7 +40,6 @@
     "plugins": [
       "expo-router",
       "expo-location",
-      "react-native-maps",
       [
         "expo-splash-screen",
         {
